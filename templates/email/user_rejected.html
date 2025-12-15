@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Account Registration Update</h1>
+
+<p>Hello {{ username }},</p>
+
+<p>Thank you for your interest in joining Breathe AI. After careful review, we regret to inform you that your registration request has been <span class="status-badge status-rejected">Declined</span> at this time.</p>
+
+<div class="highlight-box">
+    <h3>📋 Registration Status</h3>
+    <p>Your account registration has been declined. You will not have access to the Breathe AI platform.</p>
+</div>
+
+<h2>What This Means</h2>
+
+<div class="highlight-box">
+    <h3>🔒 Account Status</h3>
+    <p>Unfortunately, your registration does not meet our current criteria for platform access. This decision is final and cannot be appealed.</p>
+</div>
+
+<h2>Alternative Options</h2>
+
+<p>If you're interested in wellness and AI-powered assistance, we encourage you to:</p>
+<ul style="color: #4a5568; margin: 10px 0; padding-left: 20px;">
+    <li>Check back with us in the future as our policies may change</li>
+    <li>Follow us for updates on platform availability</li>
+</ul>
+
+<div class="highlight-box">
+    <h3>💡 Why This Happens</h3>
+    <p>We maintain strict quality standards to ensure our community remains safe and beneficial for all users. This helps us provide the best possible experience for approved members.</p>
+</div>
+
+<p>We appreciate your understanding and wish you the best in your wellness journey.</p>
+
+<p>Best regards,<br>
+<strong>The Breathe AI Team</strong></p>
+{% endblock %}

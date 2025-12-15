@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>New User Registration Request</h1>
+
+<p>Hello,</p>
+
+<p>A new user has submitted a registration request to access the Breathe AI chatbot platform. Please review their details below and take appropriate action.</p>
+
+<div class="highlight-box">
+    <h3>📝 Registration Details</h3>
+    <div class="info-grid">
+        <div class="info-item">
+            <div class="info-label">Username</div>
+            <div class="info-value">{{ username }}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Email Address</div>
+            <div class="info-value">{{ email }}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Registration Date</div>
+            <div class="info-value">{{ signup_date.strftime('%B %d, %Y at %I:%M %p') if signup_date else 'N/A' }}</div>
+        </div>
+        {% if gender %}
+        <div class="info-item">
+            <div class="info-label">Gender</div>
+            <div class="info-value">{{ gender|title }}</div>
+        </div>
+        {% endif %}
+        {% if dob %}
+        <div class="info-item">
+            <div class="info-label">Date of Birth</div>
+            <div class="info-value">{{ dob.strftime('%B %d, %Y') if dob else 'N/A' }}</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="highlight-box">
+    <h3>⚡ Required Action</h3>
+    <p>Please review this registration request and approve or decline it through the admin dashboard. The user will be automatically notified of your decision.</p>
+    
+    <p><strong>Note:</strong> This user is currently unable to access the platform until their account is approved.</p>
+</div>
+
+<p>Thank you for maintaining the quality and security of our Breathe AI community.</p>
+
+<p>Best regards,<br>
+<strong>Breathe AI System</strong></p>
+{% endblock %}
