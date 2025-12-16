@@ -9,7 +9,6 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
-    sources: List[str]
     # REMOVED session_id field
 
 class UploadResponse(BaseModel):

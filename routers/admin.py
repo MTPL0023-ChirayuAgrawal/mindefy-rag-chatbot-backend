@@ -169,18 +169,26 @@ async def upload_pdf(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="File size limit exceeded")
 
     try:
+        # Store existing PDFs to delete after successful upload
+        existing_pdfs = list(UPLOAD_DIR.glob("*.pdf"))
+        
         pdf_path = UPLOAD_DIR / file.filename
+        
+        # If same filename exists, use a temp name first
+        temp_path = None
         if pdf_path.exists():
             from datetime import datetime
-            name, ext = os.path.splitext(file.filename)
-            pdf_path = UPLOAD_DIR / f"{name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}{ext}"
-
-        with open(pdf_path, "wb") as f:
-            f.write(pdf_bytes)
+            temp_path = UPLOAD_DIR / f"temp_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            with open(temp_path, "wb") as f:
+                f.write(pdf_bytes)
+        else:
+            with open(pdf_path, "wb") as f:
+                f.write(pdf_bytes)
+            temp_path = pdf_path
 
         text = pdf_processor.extract_text(pdf_bytes)
         if not text or len(text.strip()) < 100:
-            os.remove(pdf_path)
+            os.remove(temp_path)
             raise HTTPException(status_code=400, detail="Insufficient text content")
 
         chunks = pdf_processor.create_chunks(
@@ -194,6 +202,20 @@ async def upload_pdf(file: UploadFile = File(...)):
             clear_global_state()
 
         retriever = HybridRetriever(chunks, embedding_service)
+        
+        # Delete old PDFs only after successful processing
+        for existing_pdf in existing_pdfs:
+            if existing_pdf != temp_path:
+                try:
+                    os.remove(existing_pdf)
+                except Exception as e:
+                    print(f"Error deleting existing PDF {existing_pdf}: {e}")
+        
+        # Rename temp file to final name if needed
+        if temp_path != pdf_path:
+            if pdf_path.exists():
+                os.remove(pdf_path)
+            os.rename(temp_path, pdf_path)
 
         global_state.update({
             'retriever': retriever,
@@ -236,4 +258,47 @@ async def get_pdf():
         path=global_state['pdf_path'],
         media_type="application/pdf",
         filename=global_state['pdf_filename']
+    )
+
+
+@router.get("/pdf/info", dependencies=[Depends(require_admin)])
+async def get_pdf_info():
+    """
+    Get details about the uploaded PDF including name, size, and preview URL.
+    """
+    if not UPLOAD_DIR.exists():
+        raise HTTPException(status_code=404, detail="No PDF uploaded")
+    
+    pdf_files = list(UPLOAD_DIR.glob("*.pdf"))
+    
+    if not pdf_files:
+        raise HTTPException(status_code=404, detail="No PDF uploaded")
+    
+    pdf_file = pdf_files[0]
+    file_stat = pdf_file.stat()
+    
+    return {
+        "name": pdf_file.name,
+        "size": file_stat.st_size,
+        "size_formatted": f"{file_stat.st_size / 1024:.2f} KB" if file_stat.st_size < 1024 * 1024 else f"{file_stat.st_size / (1024 * 1024):.2f} MB",
+        "preview_url": "/admin/pdf/preview"
+    }
+
+
+@router.get("/pdf/preview", dependencies=[Depends(require_admin)])
+async def preview_pdf():
+    """
+    Get the PDF file for preview/download.
+    """
+    pdf_files = list(UPLOAD_DIR.glob("*.pdf"))
+    
+    if not pdf_files:
+        raise HTTPException(status_code=404, detail="No PDF found")
+    
+    pdf_path = pdf_files[0]
+    
+    return FileResponse(
+        path=str(pdf_path),
+        media_type="application/pdf",
+        filename=pdf_path.name
     )

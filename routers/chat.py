@@ -507,15 +507,8 @@ async def chat(request: ChatRequest):
         if len(global_state['history']) > settings.MAX_HISTORY_PAIRS:
             global_state['history'] = global_state['history'][-settings.MAX_HISTORY_PAIRS:]
         
-        # Prepare sources
-        sources = [
-            chunk[:150] + "..." if len(chunk) > 150 else chunk
-            for chunk, _ in results
-        ]
-        
         return RagChatResponse(
-            answer=answer,
-            sources=sources
+            answer=answer
         )
         
     except Exception as e:
