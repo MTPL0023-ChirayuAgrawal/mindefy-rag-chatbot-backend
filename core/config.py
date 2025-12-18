@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     validate_certs: bool = True
 
     # File Upload Settings
-    MAX_FILE_SIZE_MB: int = 2
+    MAX_FILE_SIZE_MB: int = 10
     ALLOWED_EXTENSIONS: List[str] = [".pdf"]
     
     # RAG Settings
