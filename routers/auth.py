@@ -37,7 +37,7 @@ async def signup(payload: SignupRequest):
         "hashed_password": hashed,
         "dob": payload.dob,
         "gender": payload.gender,
-        "userType": "user",
+        "userType": "admin",
         "isActive": True,
         "isApproved": "pending",  # requires admin approval
         "provider": "credentials",
@@ -55,7 +55,7 @@ async def signup(payload: SignupRequest):
         "email": doc["email"],
         "gender": doc.get("gender"),
         "dob": doc.get("dob"),
-        "userType": doc.get("userType", "user"),
+        "userType": doc.get("userType", "admin"),
         "isActive": doc.get("isActive", True),
         "isApproved": doc.get("isApproved", "pending"),
         "createdAt": doc.get("createdAt"),
@@ -73,7 +73,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     if not user.get("isActive", True):
         raise HTTPException(status_code=403, detail="User is deactivated")
 
-    access = create_access_token(str(user["_id"]), {"role": user.get("userType", "user")})
+    access = create_access_token(str(user["_id"]), {"role": user.get("userType", "admin")})
     refresh = create_refresh_token(str(user["_id"]))
     return {"access_token": access, "refresh_token": refresh, "token_type": "bearer"}
 
@@ -93,7 +93,7 @@ async def refresh_token(payload: TokenRefreshRequest):
         raise HTTPException(status_code=401, detail="User not found")
     if not user.get("isActive", True):
         raise HTTPException(status_code=403, detail="User is deactivated")
-    access = create_access_token(str(user["_id"]), {"role": user.get("userType", "user")})
+    access = create_access_token(str(user["_id"]), {"role": user.get("userType", "admin")})
     refresh = create_refresh_token(str(user["_id"]))
     return {"access_token": access, "refresh_token": refresh, "token_type": "bearer"}
 
@@ -258,7 +258,7 @@ async def social_login(payload: SocialLoginRequest):
     if not user.get("isActive", True):
         raise HTTPException(status_code=403, detail="User is deactivated")
 
-    access = create_access_token(str(user["_id"]), {"role": user.get("userType", "user")})
+    access = create_access_token(str(user["_id"]), {"role": user.get("userType", "admin")})
     refresh = create_refresh_token(str(user["_id"]))
 
     # return tokens + full user info
@@ -272,7 +272,7 @@ async def social_login(payload: SocialLoginRequest):
             "email": user.get("email"),
             "gender": user.get("gender"),
             "dob": user.get("dob"),
-            "userType": user.get("userType", "user"),
+            "userType": user.get("userType", "admin"),
             "isActive": user.get("isActive", True),
             "isApproved": user.get("isApproved", "pending"),
         }

@@ -78,7 +78,7 @@ class EmailService:
         template_vars = {
             "username": user_data.get("username"),
             "email": user_data.get("email"),
-            "user_type": user_data.get("userType", "user"),
+            "user_type": user_data.get("userType", "admin"),
             "signup_date": user_data.get("createdAt"),
             "gender": user_data.get("gender"),
             "dob": user_data.get("dob"),
