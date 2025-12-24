@@ -22,9 +22,9 @@ class Settings(BaseSettings):
     # Social providers
     google_client_id: Optional[str] = None
     google_client_secret: Optional[str] = None
-    google_redirect_uri: Optional[str] = Field(default="http://127.0.0.1:8000/auth/google/callback")
-    frontend_url: Optional[str] = Field(default="http://localhost:3000")
-    frontend_chat_route: Optional[str] = Field(default="/chat")
+    google_redirect_uri: Optional[str] = None
+    frontend_url: Optional[str] = None
+    frontend_chat_route: Optional[str] = None
 
     # Email settings
     mail_username: Optional[str] = None

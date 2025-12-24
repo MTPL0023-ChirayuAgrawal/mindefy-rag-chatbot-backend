@@ -214,7 +214,7 @@ async def upsert_social_user(
         "email": profile.get("email"),
         "provider": provider,
         "providerId": provider_id,
-        "userType": "user",
+        "userType": "admin",
         "isActive": True,
         "isApproved": "pending",
         "createdAt": datetime.utcnow(),
