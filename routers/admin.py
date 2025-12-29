@@ -206,7 +206,7 @@ async def upload_pdf(file: UploadFile = File(...)):
                     if existing_pdf.exists():
                         os.remove(existing_pdf)
                 except Exception as e:
-                    print(f"Error deleting existing PDF {existing_pdf}: {e}")
+                    pass
         
         if global_state['retriever']:
             global_state['retriever'] = None
@@ -215,6 +215,7 @@ async def upload_pdf(file: UploadFile = File(...)):
             gc.collect()
 
         retriever = HybridRetriever(chunks, embedding_service)
+        await retriever.build_indices_async()
         
         # Rename temp file to final name if needed
         if temp_path != pdf_path:

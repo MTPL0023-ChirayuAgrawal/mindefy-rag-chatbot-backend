@@ -3,6 +3,7 @@ Hybrid search retrieval using FAISS and BM25
 """
 import numpy as np
 import faiss
+import asyncio
 from typing import List, Tuple
 from rank_bm25 import BM25Okapi
 
@@ -14,10 +15,25 @@ class HybridRetriever:
         self.embedding_service = embedding_service
         self.dense_index = None
         self.bm25_index = None
-        self._build_indices()
+    
+    async def build_indices_async(self):
+        """Build both dense (FAISS) and sparse (BM25) indices asynchronously."""
+        # Use async embedding generation for faster processing
+        embeddings = await self.embedding_service.get_embeddings_async(self.chunks)
+        
+        emb_np = np.array(embeddings).astype('float32')
+        dim = emb_np.shape[1]
+        
+        # Build FAISS index
+        self.dense_index = faiss.IndexFlatL2(dim)
+        self.dense_index.add(emb_np)
+        
+        # Build BM25 index
+        tokenized_chunks = [chunk.lower().split() for chunk in self.chunks]
+        self.bm25_index = BM25Okapi(tokenized_chunks)
     
     def _build_indices(self):
-        """Build both dense (FAISS) and sparse (BM25) indices."""
+        """Build both dense (FAISS) and sparse (BM25) indices synchronously."""
         embeddings = self.embedding_service.get_embeddings(self.chunks)
         emb_np = np.array(embeddings).astype('float32')
         dim = emb_np.shape[1]

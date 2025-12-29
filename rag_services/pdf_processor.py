@@ -5,6 +5,7 @@ import io
 import re
 from typing import List
 from pypdf import PdfReader
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from fastapi import HTTPException
 
 class PDFProcessor:
@@ -12,19 +13,28 @@ class PDFProcessor:
     
     @staticmethod
     def extract_text(pdf_bytes: bytes) -> str:
-        """Extract and clean text from PDF bytes."""
+        """Extract and clean text from PDF bytes - optimized for speed."""
         try:
             stream = io.BytesIO(pdf_bytes)
             reader = PdfReader(stream)
+            total_pages = len(reader.pages)
             
+            # Extract text from all pages - pypdf is already optimized
             text_pages = []
-            for page in reader.pages:
-                extracted = page.extract_text()
-                if extracted:
-                    text_pages.append(extracted)
+            for i, page in enumerate(reader.pages):
+                try:
+                    extracted = page.extract_text()
+                    if extracted:
+                        text_pages.append(extracted)
+                    
+                except Exception as e:
+                    pass
             
-            full_text = "\n".join(text_pages)
-            return PDFProcessor._clean_text(full_text)
+            full_text = " ".join(text_pages)
+            
+            # Simplified cleaning for speed
+            full_text = re.sub(r'\s+', ' ', full_text).strip()
+            return full_text
             
         except Exception as e:
             raise HTTPException(
